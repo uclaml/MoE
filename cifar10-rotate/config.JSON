@@ -1,0 +1,10 @@
+{
+    "model": "resnet",
+    "epochs": 200,
+    "experts": 4,
+    "strategy": "top1",
+    "degree": 30,
+    "crop": 24,
+    "classes": 2, 
+    "clusters": 10
+  }
