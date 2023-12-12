@@ -135,6 +135,16 @@ if args.resume:
     print('==> Resuming from checkpoint..')
     assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
     checkpoint = torch.load('./checkpoint/2layer_ckpt.pth')
+    if args.model == 'resnet18':
+        if args.mixture:
+            net = moe.NonlinearMixtureRes(EXPERT_NUM, strategy=strategy).to(device)
+        else:
+            net = resnet.ResNet18().to(device)
+    elif args.model == 'MobileNetV2':
+        if args.mixture:
+            net = moe.NonlinearMixtureMobile(EXPERT_NUM, strategy=strategy).to(device)
+        else:
+            net = mobilenet.MobileNetV2().to(device)
     net.load_state_dict(checkpoint['net'])
     best_acc = checkpoint['acc']
     start_epoch = checkpoint['epoch']
