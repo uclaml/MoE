@@ -38,7 +38,6 @@ g.manual_seed(0)
 
 config = get_config()
 EXPERT_NUM = config['experts']
-CLUSTER_NUM = config['clusters']
 strategy = config['strategy']
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
@@ -136,6 +135,16 @@ if args.resume:
     print('==> Resuming from checkpoint..')
     assert os.path.isdir('checkpoint'), 'Error: no checkpoint directory found!'
     checkpoint = torch.load('./checkpoint/2layer_ckpt.pth')
+    if args.model == 'resnet18':
+        if args.mixture:
+            net = moe.NonlinearMixtureRes(EXPERT_NUM, strategy=strategy).to(device)
+        else:
+            net = resnet.ResNet18().to(device)
+    elif args.model == 'MobileNetV2':
+        if args.mixture:
+            net = moe.NonlinearMixtureMobile(EXPERT_NUM, strategy=strategy).to(device)
+        else:
+            net = mobilenet.MobileNetV2().to(device)
     net.load_state_dict(checkpoint['net'])
     best_acc = checkpoint['acc']
     start_epoch = checkpoint['epoch']
@@ -148,7 +157,7 @@ def train(epoch):
     train_loss = 0
     correct = 0
     total = 0
-    for batch_idx, (inputs, targets, _) in enumerate(trainloader):
+    for batch_idx, (inputs, targets) in enumerate(trainloader):
         inputs, targets = inputs.to(device), targets.to(device)
         for optim in optimizers:
             optim.zero_grad()
@@ -184,8 +193,8 @@ def test(epoch):
     total = 0
 
     with torch.no_grad():
-        for batch_idx, (inputs, targets, clusters) in enumerate(testloader):
-            inputs, targets, clusters = inputs.to(device), targets.to(device), clusters.to(device)
+        for batch_idx, (inputs, targets) in enumerate(testloader):
+            inputs, targets = inputs.to(device), targets.to(device)
             if args.mixture:
                 outputs,select0,_,_ = net(inputs)
             else:
