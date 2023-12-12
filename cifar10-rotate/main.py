@@ -38,7 +38,6 @@ g.manual_seed(0)
 
 config = get_config()
 EXPERT_NUM = config['experts']
-CLUSTER_NUM = config['clusters']
 strategy = config['strategy']
 
 parser = argparse.ArgumentParser(description='PyTorch CIFAR10 Training')
@@ -148,7 +147,7 @@ def train(epoch):
     train_loss = 0
     correct = 0
     total = 0
-    for batch_idx, (inputs, targets, _) in enumerate(trainloader):
+    for batch_idx, (inputs, targets) in enumerate(trainloader):
         inputs, targets = inputs.to(device), targets.to(device)
         for optim in optimizers:
             optim.zero_grad()
@@ -184,8 +183,8 @@ def test(epoch):
     total = 0
 
     with torch.no_grad():
-        for batch_idx, (inputs, targets, clusters) in enumerate(testloader):
-            inputs, targets, clusters = inputs.to(device), targets.to(device), clusters.to(device)
+        for batch_idx, (inputs, targets) in enumerate(testloader):
+            inputs, targets = inputs.to(device), targets.to(device)
             if args.mixture:
                 outputs,select0,_,_ = net(inputs)
             else:
